@@ -1,12 +1,23 @@
+import { Auth } from "aws-amplify";
 import React from "react";
-import { FlatList, Image, StyleSheet, Text, View } from "react-native";
+import {
+  FlatList,
+  Image,
+  LogBox,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import chatRoomsData from "../assets/dummy-data/ChatRooms";
 import ChatRoomItem from "../components/ChatRoomItem";
 
-const chatRoom1 = chatRoomsData[0];
-const chatRoom2 = chatRoomsData[1];
-
 export default function HomeScreen() {
+  LogBox.ignoreAllLogs();
+
+  const logout = () => {
+    Auth.signOut();
+  };
   return (
     <View style={styles.page}>
       <FlatList
@@ -14,6 +25,20 @@ export default function HomeScreen() {
         renderItem={({ item }) => <ChatRoomItem chatRoom={item} />}
         showsVerticalScrollIndicator={false}
       />
+
+      <Pressable
+        onPress={logout}
+        style={{
+          backgroundColor: "#3777f0",
+          height: 50,
+          margin: 10,
+          borderRadius: 25,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Text style={{ color: "white" }}>Logout</Text>
+      </Pressable>
     </View>
   );
 }
