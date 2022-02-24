@@ -7,14 +7,33 @@ import {
   AntDesign,
   Ionicons,
 } from "@expo/vector-icons";
+import { Auth, DataStore } from "aws-amplify";
+import { Message } from "../../src/models";
+import { ChatRoom } from "../../src/models";
 
-const MessageInput = () => {
+const MessageInput = ({ chatRoom }) => {
   const [message, setMessage] = useState("");
 
-  const sendMessage = () => {
+  const sendMessage = async () => {
     // send message
-    console.warn("sending: ", message);
+    const user = await Auth.currentAuthenticatedUser();
+    const newMessage = await DataStore.save(
+      new Message({
+        content: message,
+        userID: user.attributes.sub,
+        chatroomID: chatRoom.id,
+      })
+    );
+    updateLastMessage(newMessage);
     setMessage("");
+  };
+
+  const updateLastMessage = async (newMessage) => {
+    DataStore.save(
+      ChatRoom.copyOf(chatRoom, (updatedChatRoom) => {
+        updatedChatRoom.LastMessage = newMessage;
+      })
+    );
   };
 
   const onPlusClicked = () => {
@@ -107,3 +126,6 @@ const styles = StyleSheet.create({
 });
 
 export default MessageInput;
+function async(newMessage: any) {
+  throw new Error("Function not implemented.");
+}
