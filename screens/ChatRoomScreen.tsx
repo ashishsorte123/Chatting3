@@ -69,8 +69,6 @@ export default function ChatRoomScreen() {
   };
   console.warn("Displaying chat room: ", route.params?.id);
 
-  navigation.setOptions({ title: "Elon Musk" });
-
   if (!chatRoom) {
     return <ActivityIndicator />;
   }

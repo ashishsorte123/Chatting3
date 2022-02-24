@@ -13,8 +13,6 @@ export default function ChatRoomItem({ chatRoom }) {
 
   const navigation = useNavigation();
 
-  console.log(chatRoom);
-
   useEffect(() => {
     const fetchUsers = async () => {
       const fetchedUsers = (await DataStore.query(ChatRoomUser))
