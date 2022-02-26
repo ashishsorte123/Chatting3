@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "lightgrey",
     borderRadius: 5,
-    margin: 10,
+    margin: 15,
   },
 
   audioProgressFG: {
