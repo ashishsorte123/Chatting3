@@ -1,0 +1,13 @@
+{
+  "resourceName": "s30e5081c5",
+  "policyUUID": "0e5081c5",
+  "bucketName": "chatting375e6c9c47954486fac498f759f83ec1f",
+  "storageAccess": "auth",
+  "guestAccess": [],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ"
+  ],
+  "triggerFunction": "NONE",
+  "groupAccess": {}
+}
