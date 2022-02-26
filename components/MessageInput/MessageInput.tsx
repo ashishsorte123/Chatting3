@@ -221,6 +221,7 @@ const MessageInput = ({ chatRoom }) => {
         audio: key,
         userID: user.attributes.sub,
         chatroomID: chatRoom.id,
+        status: "SENT",
       })
     );
 

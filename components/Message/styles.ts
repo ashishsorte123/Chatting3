@@ -7,6 +7,8 @@ const styles = StyleSheet.create({
     margin: 10,
     borderRadius: 10,
     maxWidth: "70%",
+    flexDirection: "row",
+    alignItems: "flex-end",
   },
 
   leftContainer: {
