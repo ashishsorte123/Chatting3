@@ -18,6 +18,9 @@ import { ChatRoom } from "../src/models";
 export default function ChatRoomScreen() {
   const [messages, setMessages] = useState<MessageModal[]>([]);
   const [chatRoom, setChatRoom] = useState<ChatRoom | null>(null);
+  const [messageReplyTo, setMessageReplyTo] = useState<MessageModal | null>(
+    null
+  );
   const route = useRoute();
   const navigation = useNavigation();
 
@@ -67,7 +70,6 @@ export default function ChatRoomScreen() {
     // console.log(fetchedMessages);
     setMessages(fetchedMessages);
   };
-  console.warn("Displaying chat room: ", route.params?.id);
 
   if (!chatRoom) {
     return <ActivityIndicator />;
@@ -77,11 +79,20 @@ export default function ChatRoomScreen() {
     <SafeAreaView style={styles.page}>
       <FlatList
         data={messages}
-        renderItem={({ item }) => <Message message={item} />}
+        renderItem={({ item }) => (
+          <Message
+            message={item}
+            setAsMessageReply={() => setMessageReplyTo(item)}
+          />
+        )}
         inverted
       />
 
-      <MessageInput chatRoom={chatRoom} />
+      <MessageInput
+        chatRoom={chatRoom}
+        messageReplyTo={messageReplyTo}
+        removeMessageReplyTo={() => setMessageReplyTo(null)}
+      />
     </SafeAreaView>
   );
 }

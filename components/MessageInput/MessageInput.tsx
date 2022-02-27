@@ -24,8 +24,9 @@ import * as ImagePicker from "expo-image-picker";
 import uuid from "react-native-uuid";
 import { Audio } from "expo-av";
 import AudioPlayer from "../AudioPlayer";
+import MessageComponent from "../Message";
 
-const MessageInput = ({ chatRoom }) => {
+const MessageInput = ({ chatRoom, messageReplyTo, removeMessageReplyTo }) => {
   const [message, setMessage] = useState("");
   const [image, setImage] = useState<string | null>(null);
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
@@ -59,6 +60,7 @@ const MessageInput = ({ chatRoom }) => {
         content: message,
         userID: user.attributes.sub,
         chatroomID: chatRoom.id,
+        replyToMessageID: messageReplyTo?.id,
       })
     );
     updateLastMessage(newMessage);
@@ -148,6 +150,7 @@ const MessageInput = ({ chatRoom }) => {
         image: key,
         userID: user.attributes.sub,
         chatroomID: chatRoom.id,
+        replyToMessageID: messageReplyTo?.id,
       })
     );
 
@@ -222,6 +225,7 @@ const MessageInput = ({ chatRoom }) => {
         userID: user.attributes.sub,
         chatroomID: chatRoom.id,
         status: "SENT",
+        replyToMessageID: messageReplyTo?.id,
       })
     );
 
@@ -233,6 +237,32 @@ const MessageInput = ({ chatRoom }) => {
     <KeyboardAvoidingView
       style={[styles.root, { height: isEmojiPickerOpen ? "50%" : "auto" }]}
     >
+      {messageReplyTo && (
+        <View
+          style={{
+            backgroundColor: "#f2f2f2",
+            padding: 5,
+            flexDirection: "row",
+            alignSelf: "stretch",
+            justifyContent: "space-between",
+          }}
+        >
+          <View>
+            <Text>Reply to:</Text>
+            <MessageComponent message={messageReplyTo} />
+          </View>
+
+          <Pressable onPress={() => removeMessageReplyTo(null)}>
+            <AntDesign
+              name="close"
+              size={24}
+              color="black"
+              style={{ margin: 10 }}
+            />
+          </Pressable>
+        </View>
+      )}
+
       {image && (
         <View style={styles.sendImageContainer}>
           <Image
