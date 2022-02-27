@@ -106,7 +106,7 @@ const MessageInput = ({ chatRoom }) => {
       quality: 1,
     });
 
-    console.log(result);
+    // console.log(result);
 
     if (!result.cancelled) {
       setImage(result.uri);
@@ -127,7 +127,7 @@ const MessageInput = ({ chatRoom }) => {
   };
 
   const progressCallback = (progress) => {
-    console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
+    // console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
     setProgress(progress.loaded / progress.total);
   };
 

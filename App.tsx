@@ -7,8 +7,8 @@ import Navigation from "./navigation";
 import Amplify, { Auth, DataStore, Hub } from "aws-amplify";
 import config from "./src/aws-exports";
 import { withAuthenticator } from "aws-amplify-react-native";
-import { useEffect } from "react";
-import { Message } from "./src/models";
+import { useEffect, useState } from "react";
+import { Message, User } from "./src/models";
 
 Amplify.configure({
   ...config,
@@ -20,6 +20,8 @@ Amplify.configure({
 function App() {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
+
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     // Create listener
@@ -44,7 +46,54 @@ function App() {
     return () => listener();
   }, []);
 
-  Auth.currentAuthenticatedUser().then(console.log);
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+    const subscription = DataStore.observe(User, user.id).subscribe((msg) => {
+      if (msg.model === User && msg.opType === "UPDATE") {
+        setUser(msg.element);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [user?.id]);
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      await updateLastOnline();
+    }, 1 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [user]);
+
+  const fetchUser = async () => {
+    const userData = await Auth.currentAuthenticatedUser();
+    const user = await DataStore.query(User, userData.attributes.sub);
+    if (user) {
+      setUser(user);
+    }
+  };
+
+  const updateLastOnline = async () => {
+    if (!user) {
+      return;
+    }
+    console.log("saving");
+    console.log(user.lastOnlineAt);
+    console.log(user.updatedAt);
+
+    const response = await DataStore.save(
+      User.copyOf(user, (updated) => {
+        updated.lastOnlineAt = +new Date();
+      })
+    );
+    setUser(response);
+  };
+
+  // Auth.currentAuthenticatedUser().then(console.log);
 
   if (!isLoadingComplete) {
     return null;

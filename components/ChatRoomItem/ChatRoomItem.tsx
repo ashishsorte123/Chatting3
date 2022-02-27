@@ -20,7 +20,7 @@ export default function ChatRoomItem({ chatRoom }) {
         .filter((chatRoomUser) => chatRoomUser.chatRoom.id === chatRoom.id)
         .map((chatroomUser) => chatroomUser.user);
       // setUsers(fetchedUsers);
-      console.log(fetchedUsers);
+      // console.log(fetchedUsers);
       const authUser = await Auth.currentAuthenticatedUser();
       setUser(
         fetchedUsers.find((user) => user.id !== authUser.attributes.sub) || null

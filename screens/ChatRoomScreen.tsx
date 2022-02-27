@@ -50,7 +50,7 @@ export default function ChatRoomScreen() {
     } else {
       setChatRoom(chatRoom);
     }
-    console.log(chatRoom);
+    // console.log(chatRoom);
   };
 
   const fetchMessages = async () => {
@@ -64,7 +64,7 @@ export default function ChatRoomScreen() {
         sort: (message) => message.createdAt(SortDirection.DESCENDING),
       }
     );
-    console.log(fetchedMessages);
+    // console.log(fetchedMessages);
     setMessages(fetchedMessages);
   };
   console.warn("Displaying chat room: ", route.params?.id);

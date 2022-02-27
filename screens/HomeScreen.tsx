@@ -26,7 +26,7 @@ export default function HomeScreen() {
           (chatRoomUser) => chatRoomUser.user.id === userData.attributes.sub
         )
         .map((chatRoomUser) => chatRoomUser.chatRoom);
-      console.log(chatRooms);
+      // console.log(chatRooms);
       setChatRooms(chatRooms);
     };
     fetchChatRooms();

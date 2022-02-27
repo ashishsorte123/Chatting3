@@ -3,11 +3,12 @@ import React, { useEffect, useState } from "react";
 import { Feather } from "@expo/vector-icons";
 import { Auth, DataStore } from "aws-amplify";
 import { ChatRoomUser, User } from "../src/models";
+import moment from "moment";
 
 const ChatRoomHeader = ({ id, children }) => {
   const { width } = useWindowDimensions();
   const [user, setUser] = useState<User | null>(null);
-  console.log(id);
+  // console.log(id);
 
   useEffect(() => {
     if (!id) {
@@ -18,7 +19,7 @@ const ChatRoomHeader = ({ id, children }) => {
         .filter((chatRoomUser) => chatRoomUser.chatRoom.id === id)
         .map((chatroomUser) => chatroomUser.user);
       // setUsers(fetchedUsers);
-      console.log(fetchedUsers);
+      // console.log(fetchedUsers);
       const authUser = await Auth.currentAuthenticatedUser();
       setUser(
         fetchedUsers.find((user) => user.id !== authUser.attributes.sub) || null
@@ -26,6 +27,22 @@ const ChatRoomHeader = ({ id, children }) => {
     };
     fetchUsers();
   }, []);
+
+  const getLastOnlineText = () => {
+    if (!user?.lastOnlineAt) {
+      return null;
+    }
+
+    // if lastOnlineAt is less than 5 minutes ago, show him as online
+    const lastOnlineDiffMS = moment().diff(moment(user.lastOnlineAt));
+    if (lastOnlineDiffMS < 5 * 60 * 1000) {
+      // less than 5 minutes
+      return "Online";
+    } else {
+      return `Last seen online ${moment(user.lastOnlineAt).fromNow()}`;
+    }
+  };
+
   return (
     <View
       style={{
@@ -43,16 +60,22 @@ const ChatRoomHeader = ({ id, children }) => {
         }}
         style={{ width: 30, height: 30, borderRadius: 15 }}
       />
-      <Text
-        style={{
-          fontSize: 15,
-          fontWeight: "bold",
-          flex: 1,
-          marginLeft: 10,
-        }}
-      >
-        {user?.name}
-      </Text>
+      <View>
+        <Text
+          style={{
+            fontSize: 15,
+            fontWeight: "bold",
+            marginLeft: 10,
+            marginBottom: 5,
+          }}
+        >
+          {user?.name}
+        </Text>
+
+        <Text style={{ fontSize: 12, marginLeft: 10 }}>
+          {getLastOnlineText()}
+        </Text>
+      </View>
       <Feather
         name="camera"
         size={24}
