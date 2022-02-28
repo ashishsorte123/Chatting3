@@ -1,15 +1,24 @@
-import { View, Text, useWindowDimensions, Image } from "react-native";
+import {
+  View,
+  Text,
+  useWindowDimensions,
+  Image,
+  Pressable,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { Feather } from "@expo/vector-icons";
 import { Auth, DataStore } from "aws-amplify";
 import { ChatRoom, ChatRoomUser, User } from "../src/models";
 import moment from "moment";
+import { useNavigation } from "@react-navigation/native";
 
 const ChatRoomHeader = ({ id, children }) => {
   const { width } = useWindowDimensions();
   const [user, setUser] = useState<User | null>(null);
   const [chatRoom, setChatRoom] = useState<ChatRoom | undefined>(undefined);
   const [allUsers, setAllUsers] = useState<User[]>([]);
+
+  const navigation = useNavigation();
 
   const fetchUsers = async () => {
     const fetchedUsers = (await DataStore.query(ChatRoomUser))
@@ -45,13 +54,17 @@ const ChatRoomHeader = ({ id, children }) => {
       // less than 5 minutes
       return "Online";
     } else {
-      return `Last seen online
-${moment(user.lastOnlineAt).fromNow()}`;
+      return `Last seen online ${moment(user.lastOnlineAt).fromNow()}`;
     }
   };
 
   const getUsernames = () => {
     return allUsers.map((user) => user.name).join(", ");
+  };
+
+  const openInfo = () => {
+    // redirect to info page
+    navigation.navigate("GroupInfoScreen", { id });
   };
 
   const isGroup = allUsers.length > 2;
@@ -73,7 +86,7 @@ ${moment(user.lastOnlineAt).fromNow()}`;
         }}
         style={{ width: 40, height: 40, borderRadius: 25, marginBottom: 10 }}
       />
-      <View>
+      <Pressable onPress={openInfo} style={{ flex: 1, marginLeft: 10 }}>
         <Text
           style={{
             fontSize: 15,
@@ -88,7 +101,7 @@ ${moment(user.lastOnlineAt).fromNow()}`;
         <Text style={{ fontSize: 12, marginLeft: 15 }}>
           {isGroup ? getUsernames() : getLastOnlineText()}
         </Text>
-      </View>
+      </Pressable>
       <Feather
         name="camera"
         size={24}

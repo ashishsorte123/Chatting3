@@ -26,15 +26,16 @@ export default function HomeScreen() {
           (chatRoomUser) => chatRoomUser.user.id === userData.attributes.sub
         )
         .map((chatRoomUser) => chatRoomUser.chatRoom);
-      // console.log(chatRooms);
       setChatRooms(chatRooms);
     };
     fetchChatRooms();
   }, []);
 
-  const logout = () => {
+  const logout = async () => {
+    await DataStore.clear();
     Auth.signOut();
   };
+
   return (
     <View style={styles.page}>
       <FlatList

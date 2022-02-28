@@ -8,7 +8,6 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import Message from "../components/Message";
-import chatRoomData from "../assets/dummy-data/Chats";
 import MessageInput from "../components/MessageInput";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Message as MessageModal } from "../src/models";
@@ -82,7 +81,6 @@ export default function ChatRoomScreen() {
             setAsMessageReply={() => setMessageReplyTo(item)}
           />
         )}
-        inverted
       />
 
       <MessageInput

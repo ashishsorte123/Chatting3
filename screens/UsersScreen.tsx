@@ -1,8 +1,8 @@
-import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { Auth, DataStore } from "aws-amplify";
 import React, { useEffect, useState } from "react";
 import {
+  Alert,
   FlatList,
   Pressable,
   SafeAreaView,
@@ -38,9 +38,13 @@ export default function UsersScreen() {
   const createChatRoom = async (users) => {
     const authUser = await Auth.currentAuthenticatedUser();
     const dbUser = await DataStore.query(User, authUser.attributes.sub);
+    if (!dbUser) {
+      Alert.alert("There ia an error in creating a group");
+      return;
+    }
 
     // create a chat room
-    const newChatRoomData = { newMessages: 0, admin: dbUser };
+    const newChatRoomData = { newMessages: 0, Admin: dbUser };
 
     if (users.length > 1) {
       newChatRoomData.name = "New Group";

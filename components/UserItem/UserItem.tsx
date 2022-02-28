@@ -4,9 +4,19 @@ import styles from "./styles";
 import { useNavigation } from "@react-navigation/native";
 import { Feather } from "@expo/vector-icons";
 
-export default function UserItem({ user, onPress, isSelected }) {
+export default function UserItem({
+  user,
+  onPress,
+  isSelected,
+  isAdmin = false,
+  onLongPress,
+}) {
   return (
-    <Pressable onPress={onPress} style={styles.container}>
+    <Pressable
+      onPress={onPress}
+      onLongPress={onLongPress}
+      style={styles.container}
+    >
       <Image
         source={{
           uri: user.imageUri,
@@ -15,9 +25,8 @@ export default function UserItem({ user, onPress, isSelected }) {
       />
 
       <View style={styles.rightContainer}>
-        <View style={styles.row}>
-          <Text style={styles.name}>{user.name}</Text>
-        </View>
+        <Text style={styles.name}>{user.name}</Text>
+        {isAdmin && <Text>admin</Text>}
       </View>
 
       {isSelected !== undefined && (
