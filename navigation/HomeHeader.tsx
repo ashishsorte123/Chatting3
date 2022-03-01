@@ -32,12 +32,16 @@ const HomeHeader = (props) => {
       >
         Join Up
       </Text>
-      <Feather
-        name="camera"
-        size={24}
-        color="black"
-        style={{ marginHorizontal: 10 }}
-      />
+
+      <Pressable onPress={() => navigation.navigate("Settings")}>
+        <Feather
+          name="settings"
+          size={24}
+          color="black"
+          style={{ marginHorizontal: 10 }}
+        />
+      </Pressable>
+
       <Pressable onPress={() => navigation.navigate("UsersScreen")}>
         <Feather
           name="edit-2"

@@ -1,6 +1,5 @@
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-
 import useCachedResources from "./hooks/useCachedResources";
 import useColorScheme from "./hooks/useColorScheme";
 import Navigation from "./navigation";
@@ -10,6 +9,8 @@ import { withAuthenticator } from "aws-amplify-react-native";
 import { useEffect, useState } from "react";
 import { Message, User } from "./src/models";
 import { ActionSheetProvider } from "@expo/react-native-action-sheet";
+import { box } from "tweetnacl";
+import { decrypt, encrypt, generateKeyPair, PRNG } from "./utils/crypto";
 
 Amplify.configure({
   ...config,
@@ -17,6 +18,20 @@ Amplify.configure({
     disabled: true,
   },
 });
+
+// console.log(randomBytes(secretbox.nonceLength));
+
+const obj = { hello: "world" };
+const pairA = generateKeyPair();
+const pairB = generateKeyPair();
+
+const sharedA = box.before(pairB.publicKey, pairA.secretKey);
+const encrypted = encrypt(sharedA, obj);
+
+const sharedB = box.before(pairA.publicKey, pairB.secretKey);
+const decrypted = decrypt(sharedB, encrypted);
+
+console.log(obj, encrypted, decrypted);
 
 function App() {
   const isLoadingComplete = useCachedResources();
@@ -102,9 +117,8 @@ function App() {
     return (
       <SafeAreaProvider>
         <ActionSheetProvider>
-          <Navigation colorScheme={colorScheme} />
+          <Navigation colorScheme={"light"} />
         </ActionSheetProvider>
-
         <StatusBar />
       </SafeAreaProvider>
     );

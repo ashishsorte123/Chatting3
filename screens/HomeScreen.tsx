@@ -44,19 +44,7 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
       />
 
-      <Pressable
-        onPress={logout}
-        style={{
-          backgroundColor: "#3777f0",
-          height: 50,
-          margin: 10,
-          borderRadius: 25,
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Text style={{ color: "white" }}>Logout</Text>
-      </Pressable>
+      
     </View>
   );
 }
