@@ -8,10 +8,9 @@ import { ChatRoomUser } from "../../src/models";
 import moment from "moment";
 
 export default function ChatRoomItem({ chatRoom }) {
-  // const [users, setUsers] = useState<User[]>([]);
   const [user, setUser] = useState<User | null>(null);
   const [lastMessage, setLastMessage] = useState<Message | undefined>();
-
+  const [isLoading, setIsLoading] = useState(true);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -19,12 +18,11 @@ export default function ChatRoomItem({ chatRoom }) {
       const fetchedUsers = (await DataStore.query(ChatRoomUser))
         .filter((chatRoomUser) => chatRoomUser.chatRoom.id === chatRoom.id)
         .map((chatroomUser) => chatroomUser.user);
-      // setUsers(fetchedUsers);
-      // console.log(fetchedUsers);
       const authUser = await Auth.currentAuthenticatedUser();
       setUser(
         fetchedUsers.find((user) => user.id !== authUser.attributes.sub) || null
       );
+      setIsLoading(false);
     };
     fetchUsers();
   }, []);
@@ -44,7 +42,7 @@ export default function ChatRoomItem({ chatRoom }) {
     navigation.navigate("ChatRoom", { id: chatRoom.id });
   };
 
-  if (!user) {
+  if (isLoading) {
     return <ActivityIndicator />;
   }
 

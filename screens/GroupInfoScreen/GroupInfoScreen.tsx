@@ -21,6 +21,7 @@ const GroupInfoScreen = () => {
       console.warn("No chatroom id provided");
       return;
     }
+
     const chatRoom = await DataStore.query(ChatRoom, route.params.id);
     if (!chatRoom) {
       console.error("Couldn't find a chat room with this id");
@@ -67,9 +68,7 @@ const GroupInfoScreen = () => {
   const deleteUser = async (user) => {
     console.log(user);
     console.log(chatRoom);
-    const chatRoomUsersToDelete = await (
-      await DataStore.query(ChatRoomUser)
-    ).filter(
+    const chatRoomUsersToDelete = (await DataStore.query(ChatRoomUser)).filter(
       (cru) => cru.chatRoom.id === chatRoom?.id && cru.user.id === user.id
     );
     console.log(chatRoomUsersToDelete);

@@ -32,7 +32,7 @@ export default function HomeScreen() {
   }, []);
 
   const logout = async () => {
-    await DataStore.clear();
+    // await DataStore.clear();
     Auth.signOut();
   };
 
