@@ -5,26 +5,33 @@ import {
   encode as encodeBase64,
 } from "@stablelib/base64";
 import { box, setPRNG } from "tweetnacl";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Alert } from "react-native";
 
-export const PRNG = (x, n) => {
+export const PRIVATE_KEY = "PRIVATE_KEY";
+
+setPRNG((x, n) => {
   const randomBytes = getRandomBytes(n);
   for (let i = 0; i < n; i++) {
     x[i] = randomBytes[i];
   }
-};
-
-setPRNG(PRNG);
+});
 
 const newNonce = () => getRandomBytes(box.nonceLength);
-
 export const generateKeyPair = () => box.keyPair();
 
 export const encrypt = (secretOrSharedKey, json, key) => {
   const nonce = newNonce();
   const messageUint8 = encodeUTF8(JSON.stringify(json));
+  console.log(nonce);
+  console.log(messageUint8);
   const encrypted = key
     ? box(messageUint8, nonce, key, secretOrSharedKey)
     : box.after(messageUint8, nonce, secretOrSharedKey);
+
+  if (!encrypted) {
+    throw new Error("Could not encrypt message");
+  }
 
   const fullMessage = new Uint8Array(nonce.length + encrypted.length);
   fullMessage.set(nonce);
@@ -54,24 +61,23 @@ export const decrypt = (secretOrSharedKey, messageWithNonce, key) => {
   return JSON.parse(base64DecryptedMessage);
 };
 
-// export const stringToUint8Array = (content) =>
-//   Uint8Array.from(content.split(",").map((str) => parseInt(str)));
+export const stringToUint8Array = (content) =>
+  Uint8Array.from(content.split(",").map((str) => parseInt(str)));
 
-// export const getMySecretKey = async () => {
-//   const keyString = await AsyncStorage.getItem(PRIVATE_KEY);
-//   if (!keyString) {
-//     Alert.alert(
-//       "You haven't set your keypair yet",
-//       "Go to settings, and generate a new keypair",
-//       [
-//         {
-//           text: "Open setting",
-//           onPress: () => navigation.navigate("Settings"),
-//         },
-//       ]
-//     );
-//     return;
-//   }
-
-//   return stringToUint8Array(keyString);
-// };
+export const getMySecretKey = async () => {
+  const keyString = await AsyncStorage.getItem(PRIVATE_KEY);
+  if (!keyString) {
+    Alert.alert(
+      "You haven't set your keypair yet",
+      "Go to settings, and generate a new keypair",
+      [
+        {
+          text: "Open setting",
+          onPress: () => navigation.navigate("Settings"),
+        },
+      ]
+    );
+    return;
+  }
+  return stringToUint8Array(keyString);
+};

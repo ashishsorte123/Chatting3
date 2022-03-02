@@ -15,18 +15,22 @@ import AudioPlayer from "../AudioPlayer";
 import { Ionicons } from "@expo/vector-icons";
 import MessageReply from "../MessageReply";
 import { useActionSheet } from "@expo/react-native-action-sheet";
-
-const blue = "#3777f0";
-const grey = "lightgrey";
+import {
+  decrypt,
+  stringToUint8Array,
+  getMySecretKey,
+} from "../../utils/crypto";
+import { box } from "tweetnacl";
 
 const Message = (props) => {
   const { setAsMessageReply, message: propMessage } = props;
   const [message, setMessage] = useState<MessageModal>(propMessage);
+  const [decryptedContent, setDecryptedContent] = useState("");
   const [repliedTo, setRepliedTo] = useState<MessageModal | undefined>(
     undefined
   );
   const [user, setUser] = useState<User | undefined>();
-  const [isMe, setIsMe] = useState<boolean | null>(false);
+  const [isMe, setIsMe] = useState<boolean | null>(null);
   const [soundURI, setSoundURI] = useState<any>(null);
   const [isDeleted, setIsDelete] = useState(false);
 
@@ -85,6 +89,31 @@ const Message = (props) => {
     checkIfMe();
   }, [user]);
 
+  useEffect(() => {
+    if (!message?.content || !user?.publicKey) {
+      return;
+    }
+    const decryptMessage = async () => {
+      console.log("idhar pohocha");
+      const myKey = await getMySecretKey();
+      if (!myKey) {
+        return;
+      }
+      console.log("idhar bhi pohocha");
+      // decrypt message.content
+      console.log(user.publicKey);
+      const sharedKey = box.before(stringToUint8Array(user.publicKey), myKey);
+
+      console.log("sharedKey", sharedKey);
+
+      const decrypted = decrypt(sharedKey, message.content);
+      console.log("decrypted", decrypted);
+
+      setDecryptedContent(decrypted.message);
+    };
+    decryptMessage();
+  }, [message, user]);
+
   const setAsRead = async () => {
     if (isMe === false && message.status !== "READ") {
       await DataStore.save(
@@ -128,7 +157,7 @@ const Message = (props) => {
 
   const openActionMenu = () => {
     const options = ["Reply", "Delete", "Cancel"];
-    const destructiveButtonIndex = 0;
+    const destructiveButtonIndex = 1;
     const cancelButtonIndex = 2;
     showActionSheetWithOptions(
       {

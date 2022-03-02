@@ -61,6 +61,13 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
+                "forUserId": {
+                    "name": "forUserId",
+                    "isArray": false,
+                    "type": "ID",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "createdAt": {
                     "name": "createdAt",
                     "isArray": false,
@@ -337,20 +344,6 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
-                "ForMessage": {
-                    "name": "ForMessage",
-                    "isArray": false,
-                    "type": {
-                        "model": "Message"
-                    },
-                    "isRequired": false,
-                    "attributes": [],
-                    "association": {
-                        "connectionType": "HAS_ONE",
-                        "associatedWith": "id",
-                        "targetName": "userForMessageId"
-                    }
-                },
                 "createdAt": {
                     "name": "createdAt",
                     "isArray": false,
@@ -366,13 +359,6 @@ export const schema = {
                     "isRequired": false,
                     "attributes": [],
                     "isReadOnly": true
-                },
-                "userForMessageId": {
-                    "name": "userForMessageId",
-                    "isArray": false,
-                    "type": "ID",
-                    "isRequired": false,
-                    "attributes": []
                 }
             },
             "syncable": true,
@@ -474,5 +460,5 @@ export const schema = {
         }
     },
     "nonModels": {},
-    "version": "329001bacaf1923af36063141e3847d6"
+    "version": "f073a95962aba497be13682f8e253373"
 };

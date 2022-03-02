@@ -1,7 +1,11 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, Alert } from "react-native";
 import React from "react";
 import { Auth, DataStore } from "aws-amplify";
 import { generateKeyPair } from "../utils/crypto";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { User as UserModal } from "../src/models";
+
+export const PRIVATE_KEY = "PRIVATE_KEY";
 
 const SettingsScreen = () => {
   const logout = async () => {
@@ -15,7 +19,26 @@ const SettingsScreen = () => {
     console.log(publicKey, secretKey);
 
     // save private key to Async Storage
+    await AsyncStorage.setItem(PRIVATE_KEY, secretKey.toString());
+    console.log("secret key was saved");
+
     // save public key to UserModal in DataStore
+    const userData = await Auth.currentAuthenticatedUser();
+    const dbUser = await DataStore.query(UserModal, userData.attributes.sub);
+
+    if (!dbUser) {
+      Alert.alert("User not found");
+      return;
+    }
+
+    await DataStore.save(
+      UserModal.copyOf(dbUser, (updated) => {
+        updated.publicKey = publicKey.toString();
+      })
+    );
+    console.log(dbUser);
+
+    Alert.alert("Successfully updated the keypair.");
   };
 
   return (

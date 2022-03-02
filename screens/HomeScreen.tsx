@@ -1,15 +1,6 @@
 import { Auth, DataStore } from "aws-amplify";
 import React, { useEffect, useState } from "react";
-import {
-  FlatList,
-  Image,
-  LogBox,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import chatRoomsData from "../assets/dummy-data/ChatRooms";
+import { FlatList, LogBox, StyleSheet, View } from "react-native";
 import ChatRoomItem from "../components/ChatRoomItem";
 import { ChatRoom, ChatRoomUser } from "../src/models";
 
@@ -31,11 +22,6 @@ export default function HomeScreen() {
     fetchChatRooms();
   }, []);
 
-  const logout = async () => {
-    // await DataStore.clear();
-    Auth.signOut();
-  };
-
   return (
     <View style={styles.page}>
       <FlatList
@@ -43,8 +29,6 @@ export default function HomeScreen() {
         renderItem={({ item }) => <ChatRoomItem chatRoom={item} />}
         showsVerticalScrollIndicator={false}
       />
-
-      
     </View>
   );
 }

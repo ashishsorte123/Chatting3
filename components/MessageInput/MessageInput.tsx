@@ -1,12 +1,12 @@
 import {
   View,
   Text,
-  StyleSheet,
   TextInput,
   Pressable,
   KeyboardAvoidingView,
   Platform,
   Image,
+  Alert,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import {
@@ -17,7 +17,7 @@ import {
   Ionicons,
 } from "@expo/vector-icons";
 import { Auth, DataStore, Storage } from "aws-amplify";
-import { Message } from "../../src/models";
+import { ChatRoomUser, Message } from "../../src/models";
 import { ChatRoom } from "../../src/models";
 import EmojiSelector from "react-native-emoji-selector";
 import * as ImagePicker from "expo-image-picker";
@@ -25,6 +25,14 @@ import uuid from "react-native-uuid";
 import { Audio } from "expo-av";
 import AudioPlayer from "../AudioPlayer";
 import MessageComponent from "../Message";
+import styles from "./styles";
+import { box } from "tweetnacl";
+import { useNavigation } from "@react-navigation/native";
+import {
+  encrypt,
+  getMySecretKey,
+  stringToUint8Array,
+} from "../../utils/crypto";
 
 const MessageInput = ({ chatRoom, messageReplyTo, removeMessageReplyTo }) => {
   const [message, setMessage] = useState("");
@@ -32,7 +40,6 @@ const MessageInput = ({ chatRoom, messageReplyTo, removeMessageReplyTo }) => {
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState(false);
   const [progress, setProgress] = useState(0);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
-
   const [soundURI, setSoundURI] = useState<string | null>(null);
 
   useEffect(() => {
@@ -52,18 +59,59 @@ const MessageInput = ({ chatRoom, messageReplyTo, removeMessageReplyTo }) => {
     })();
   }, []);
 
-  const sendMessage = async () => {
+  const sendMessageToUser = async (user, fromUserId) => {
     // send message
-    const user = await Auth.currentAuthenticatedUser();
+    const ourSecretKey = await getMySecretKey();
+    if (!ourSecretKey) {
+      return;
+    }
+
+    if (!user.publicKey) {
+      Alert.alert(
+        "The user haven't set his keypair yet",
+        "Until the user generates the keypair, you cannot securely send him/her messages"
+      );
+      return;
+    }
+
+    console.log("private key", ourSecretKey);
+
+    const sharedKey = box.before(
+      stringToUint8Array(user.publicKey),
+      ourSecretKey
+    );
+
+    const encryptedMessage = encrypt(sharedKey, { message });
+    console.log("encrypted message", encryptedMessage);
     const newMessage = await DataStore.save(
       new Message({
-        content: message,
-        userID: user.attributes.sub,
+        content: encryptedMessage, //<- this messages should be encrypted
+        userID: fromUserId,
+        forUserId: user.id,
         chatroomID: chatRoom.id,
         replyToMessageID: messageReplyTo?.id,
       })
     );
+
     updateLastMessage(newMessage);
+  };
+
+  const sendMessage = async () => {
+    // get all the users of this chatroom
+
+    const authUser = await Auth.currentAuthenticatedUser();
+
+    const users = (await DataStore.query(ChatRoomUser))
+      .filter((cru) => cru.chatRoom.id === chatRoom.id)
+      .map((cru) => cru.user);
+
+    console.log("users", users);
+
+    //  for each user, encrypt the `content` with his public key and save it as a new message
+    await Promise.all(
+      users.map((user) => sendMessageToUser(user, authUser.attributes.sub))
+    );
+
     resetFields();
   };
 
@@ -247,17 +295,17 @@ const MessageInput = ({ chatRoom, messageReplyTo, removeMessageReplyTo }) => {
             justifyContent: "space-between",
           }}
         >
-          <View>
+          <View style={{ flex: 1 }}>
             <Text>Reply to:</Text>
             <MessageComponent message={messageReplyTo} />
           </View>
 
-          <Pressable onPress={() => removeMessageReplyTo(null)}>
+          <Pressable onPress={() => removeMessageReplyTo()}>
             <AntDesign
               name="close"
               size={24}
               color="black"
-              style={{ margin: 10 }}
+              style={{ margin: 5 }}
             />
           </Pressable>
         </View>
@@ -369,90 +417,5 @@ const MessageInput = ({ chatRoom, messageReplyTo, removeMessageReplyTo }) => {
     </KeyboardAvoidingView>
   );
 };
-
-const styles = StyleSheet.create({
-  root: {
-    padding: 10,
-  },
-
-  row: {
-    flexDirection: "row",
-  },
-
-  inputContainer: {
-    backgroundColor: "#f2f2f2",
-    flex: 1,
-    marginRight: 10,
-    borderRadius: 25,
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#dedede",
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 5,
-  },
-
-  input: {
-    flex: 1,
-    marginHorizontal: 5,
-  },
-
-  icon: {
-    marginHorizontal: 5,
-  },
-
-  buttonContainer: {
-    width: 40,
-    height: 40,
-    backgroundColor: "#3777f0",
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  buttonText: {
-    color: "white",
-    fontSize: 35,
-  },
-
-  sendImageContainer: {
-    flexDirection: "row",
-    marginVertical: 20,
-    alignSelf: "stretch",
-    justifyContent: "space-between",
-    borderWidth: 1,
-    borderColor: "#595959",
-    borderRadius: 20,
-  },
-
-  sendAudioContainer: {
-    marginVertical: 10,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: "lightgrey",
-    borderRadius: 10,
-    justifyContent: "space-between",
-    alignSelf: "stretch",
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
-  audioProgressBG: {
-    height: 3,
-    flex: 1,
-    backgroundColor: "lightgrey",
-    borderRadius: 5,
-    margin: 10,
-  },
-
-  audioProgressFG: {
-    width: 10,
-    height: 10,
-    borderRadius: 10,
-    backgroundColor: "#3777f0",
-    position: "absolute",
-    top: -3,
-  },
-});
 
 export default MessageInput;

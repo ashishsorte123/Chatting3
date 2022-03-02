@@ -1,6 +1,4 @@
 import {
-  View,
-  Text,
   StyleSheet,
   FlatList,
   SafeAreaView,
@@ -9,9 +7,9 @@ import {
 import React, { useEffect, useState } from "react";
 import Message from "../components/Message";
 import MessageInput from "../components/MessageInput";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useRoute } from "@react-navigation/native";
 import { Message as MessageModal } from "../src/models";
-import { DataStore, SortDirection } from "aws-amplify";
+import { Auth, DataStore, SortDirection } from "aws-amplify";
 import { ChatRoom } from "../src/models";
 
 export default function ChatRoomScreen() {
@@ -21,7 +19,6 @@ export default function ChatRoomScreen() {
     null
   );
   const route = useRoute();
-  const navigation = useNavigation();
 
   useEffect(() => {
     fetchChatRoom();
@@ -57,9 +54,12 @@ export default function ChatRoomScreen() {
     if (!chatRoom) {
       return;
     }
+    const authUser = await Auth.currentAuthenticatedUser();
+    const myId = authUser.attributes.sub;
+
     const fetchedMessages = await DataStore.query(
       MessageModal,
-      (message) => message.chatroomID("eq", chatRoom?.id),
+      (message) => message.chatroomID("eq", chatRoom?.id).forUserId("eq", myId),
       {
         sort: (message) => message.createdAt(SortDirection.DESCENDING),
       }
@@ -81,6 +81,7 @@ export default function ChatRoomScreen() {
             setAsMessageReply={() => setMessageReplyTo(item)}
           />
         )}
+        // inverted
       />
 
       <MessageInput
