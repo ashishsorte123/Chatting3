@@ -197,9 +197,9 @@ const Message = (props) => {
 
         {soundURI && <AudioPlayer soundURI={soundURI} />}
 
-        {!!message.content && (
+        {!!decryptedContent && (
           <Text style={{ color: isMe ? "black" : "white" }}>
-            {isDeleted ? "message deleted" : message.content}
+            {isDeleted ? "message deleted" : decryptedContent}
           </Text>
         )}
 
