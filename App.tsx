@@ -9,7 +9,7 @@ import { withAuthenticator } from "aws-amplify-react-native";
 import { useEffect, useState } from "react";
 import { Message, User } from "./src/models";
 import { ActionSheetProvider } from "@expo/react-native-action-sheet";
-import { box } from "tweetnacl";
+import { box, setPRNG } from "tweetnacl";
 import { decrypt, encrypt, generateKeyPair, PRNG } from "./utils/crypto";
 
 Amplify.configure({
@@ -18,8 +18,6 @@ Amplify.configure({
     disabled: true,
   },
 });
-
-// console.log(randomBytes(secretbox.nonceLength));
 
 const obj = { hello: "world" };
 const pairA = generateKeyPair();

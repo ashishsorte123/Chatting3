@@ -94,12 +94,10 @@ const Message = (props) => {
       return;
     }
     const decryptMessage = async () => {
-      console.log("idhar pohocha");
       const myKey = await getMySecretKey();
       if (!myKey) {
         return;
       }
-      console.log("idhar bhi pohocha");
       // decrypt message.content
       console.log(user.publicKey);
       const sharedKey = box.before(stringToUint8Array(user.publicKey), myKey);
@@ -107,8 +105,6 @@ const Message = (props) => {
       console.log("sharedKey", sharedKey);
 
       const decrypted = decrypt(sharedKey, message.content);
-      console.log("decrypted", decrypted);
-
       setDecryptedContent(decrypted.message);
     };
     decryptMessage();
@@ -197,9 +193,9 @@ const Message = (props) => {
 
         {soundURI && <AudioPlayer soundURI={soundURI} />}
 
-        {!!decryptedContent && (
+        {!!message.content && (
           <Text style={{ color: isMe ? "black" : "white" }}>
-            {isDeleted ? "message deleted" : decryptedContent}
+            {isDeleted ? "message deleted" : message.content}
           </Text>
         )}
 

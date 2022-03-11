@@ -10,12 +10,14 @@ import { Alert } from "react-native";
 
 export const PRIVATE_KEY = "PRIVATE_KEY";
 
-setPRNG((x, n) => {
+export const PRNG = (x, n) => {
   const randomBytes = getRandomBytes(n);
   for (let i = 0; i < n; i++) {
     x[i] = randomBytes[i];
   }
-});
+};
+
+setPRNG(PRNG);
 
 const newNonce = () => getRandomBytes(box.nonceLength);
 export const generateKeyPair = () => box.keyPair();
@@ -23,8 +25,6 @@ export const generateKeyPair = () => box.keyPair();
 export const encrypt = (secretOrSharedKey, json, key) => {
   const nonce = newNonce();
   const messageUint8 = encodeUTF8(JSON.stringify(json));
-  console.log(nonce);
-  console.log(messageUint8);
   const encrypted = key
     ? box(messageUint8, nonce, key, secretOrSharedKey)
     : box.after(messageUint8, nonce, secretOrSharedKey);
