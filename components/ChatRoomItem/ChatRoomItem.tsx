@@ -11,6 +11,7 @@ export default function ChatRoomItem({ chatRoom }) {
   const [user, setUser] = useState<User | null>(null);
   const [lastMessage, setLastMessage] = useState<Message | undefined>();
   const [isLoading, setIsLoading] = useState(true);
+
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -18,6 +19,7 @@ export default function ChatRoomItem({ chatRoom }) {
       const fetchedUsers = (await DataStore.query(ChatRoomUser))
         .filter((chatRoomUser) => chatRoomUser.chatRoom.id === chatRoom.id)
         .map((chatroomUser) => chatroomUser.user);
+
       const authUser = await Auth.currentAuthenticatedUser();
       setUser(
         fetchedUsers.find((user) => user.id !== authUser.attributes.sub) || null
@@ -37,8 +39,6 @@ export default function ChatRoomItem({ chatRoom }) {
   }, []);
 
   const onPress = () => {
-    console.warn("pressed on ", user.name);
-    // navigation.navigate("ChatRoom", { id: chatRoom.id });
     navigation.navigate("ChatRoom", { id: chatRoom.id });
   };
 
@@ -73,5 +73,5 @@ export default function ChatRoomItem({ chatRoom }) {
         </Text>
       </View>
     </Pressable>
-  ); 
+  );
 }

@@ -16,7 +16,7 @@ import {
   AntDesign,
   Ionicons,
 } from "@expo/vector-icons";
-import { Auth, DataStore, Storage } from "aws-amplify";
+import { Auth, Storage } from "aws-amplify";
 import { ChatRoomUser, Message } from "../../src/models";
 import { ChatRoom } from "../../src/models";
 import EmojiSelector from "react-native-emoji-selector";
@@ -27,12 +27,12 @@ import AudioPlayer from "../AudioPlayer";
 import MessageComponent from "../Message";
 import styles from "./styles";
 import { box } from "tweetnacl";
-import { useNavigation } from "@react-navigation/native";
 import {
   encrypt,
   getMySecretKey,
   stringToUint8Array,
 } from "../../utils/crypto";
+import { DataStore } from "@aws-amplify/datastore";
 
 const MessageInput = ({ chatRoom, messageReplyTo, removeMessageReplyTo }) => {
   const [message, setMessage] = useState("");
@@ -83,6 +83,7 @@ const MessageInput = ({ chatRoom, messageReplyTo, removeMessageReplyTo }) => {
 
     const encryptedMessage = encrypt(sharedKey, { message });
     console.log("encrypted message", encryptedMessage);
+
     const newMessage = await DataStore.save(
       new Message({
         content: encryptedMessage, //<- this messages should be encrypted
@@ -93,7 +94,7 @@ const MessageInput = ({ chatRoom, messageReplyTo, removeMessageReplyTo }) => {
       })
     );
 
-    updateLastMessage(newMessage);
+    // updateLastMessage(newMessage);
   };
 
   const sendMessage = async () => {
@@ -145,6 +146,7 @@ const MessageInput = ({ chatRoom, messageReplyTo, removeMessageReplyTo }) => {
     setImage(null);
     setProgress(0);
     setSoundURI(null);
+    removeMessageReplyTo();
   };
 
   // Image picker

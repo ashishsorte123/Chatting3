@@ -43,7 +43,7 @@ const SettingsScreen = () => {
 
   return (
     <View>
-      <Text>Settings</Text>
+      {/* <Text>Settings</Text> */}
 
       <Pressable
         onPress={updateKeyPair}
@@ -54,6 +54,7 @@ const SettingsScreen = () => {
           borderRadius: 25,
           alignItems: "center",
           justifyContent: "center",
+          marginTop: 200,
         }}
       >
         <Text style={{ color: "white" }}>Update keypair</Text>
@@ -68,6 +69,7 @@ const SettingsScreen = () => {
           borderRadius: 25,
           alignItems: "center",
           justifyContent: "center",
+          marginTop: 50,
         }}
       >
         <Text style={{ color: "white" }}>Logout</Text>

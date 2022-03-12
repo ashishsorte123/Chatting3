@@ -93,6 +93,7 @@ const Message = (props) => {
     if (!message?.content || !user?.publicKey) {
       return;
     }
+
     const decryptMessage = async () => {
       const myKey = await getMySecretKey();
       if (!myKey) {
@@ -193,9 +194,9 @@ const Message = (props) => {
 
         {soundURI && <AudioPlayer soundURI={soundURI} />}
 
-        {!!message.content && (
+        {!!decryptedContent && (
           <Text style={{ color: isMe ? "black" : "white" }}>
-            {isDeleted ? "message deleted" : message.content}
+            {isDeleted ? "message deleted" : decryptedContent}
           </Text>
         )}
 
